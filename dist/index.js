@@ -18,8 +18,6 @@ const cors_1 = __importDefault(require("cors"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const client_1 = require("@prisma/client");
 const path_1 = __importDefault(require("path"));
-const PORT = 3000;
-const JWT_SECRET = "pranavchaitu";
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
@@ -65,7 +63,7 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(404).json({ msg: "user not found" });
     const token = jsonwebtoken_1.default.sign({
         id: user.id
-    }, JWT_SECRET);
+    }, process.env.JWT_SECRET);
     res.cookie("token", token);
     res.json({
         msg: "logged in"
@@ -75,7 +73,7 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 const authMiddleware = (req, res, next) => {
     const token = req.cookies.token;
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         req.userId = decoded.id;
         next();
     }
@@ -107,6 +105,6 @@ app.post('/logout', authMiddleware, (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, './index.html'));
 });
-app.listen(PORT, () => {
-    console.log(`listening to port ${PORT}`);
+app.listen(process.env.PORT, () => {
+    console.log(`listening to port ${process.env.PORT}`);
 });

@@ -5,9 +5,6 @@ import jwt, { decode, JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import path from "path"
 
-const PORT = 3000
-const JWT_SECRET = "pranavchaitu"
-
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
@@ -54,7 +51,7 @@ app.post('/signin',async (req,res) => {
     if(!user) return res.status(404).json({msg : "user not found"})
     const token = jwt.sign({
         id : user.id
-    },JWT_SECRET)
+    },process.env.JWT_SECRET!)
     res.cookie("token",token)
     res.json({
         msg : "logged in"
@@ -72,7 +69,7 @@ declare module 'express-serve-static-core' {
 const authMiddleware = (req : Request,res : Response,next : Function) => {
     const token = req.cookies.token
     try {
-        const decoded = jwt.verify(token,JWT_SECRET) as JwtPayload
+        const decoded = jwt.verify(token,process.env.JWT_SECRET!) as JwtPayload
         req.userId = decoded.id        
         next()
     } catch (error) {
@@ -107,6 +104,6 @@ app.get('/',(req,res) => {
     res.sendFile(path.join(__dirname,'./index.html'))
 })
 
-app.listen(PORT,() => {
-    console.log(`listening to port ${PORT}`);
+app.listen(process.env.PORT,() => {
+    console.log(`listening to port ${process.env.PORT}`);
 })
